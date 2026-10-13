@@ -235,7 +235,7 @@
       reader.onerror = error => reject(error);
     });
 
-    async function sendEmails() {
+  async function sendEmails() {
       const subject = document.getElementById('subject').value.trim();
       const emailsText = document.getElementById('emails').value.trim();
       const message = document.getElementById('message').value.trim();
@@ -247,6 +247,56 @@
         alert('يرجى ملء جميع الحقول المطلوبة!');
         return;
       }
+
+      statusDiv.innerHTML = `<div class="log-info">⏳ جاري تجهيز الملفات والبدء السريع لأجل ${emailList.length} مستلم...</div>`;
+
+      // 1. تحويل الملفات لـ Base64 مرة واحدة فقط قبل البدء (لتوفير الوقت والسرعة)
+      const attachedFiles = [];
+      for (let i = 1; i <= 3; i++) {
+        const input = document.getElementById(`attachment${i}`);
+        if (input.files && input.files[0]) {
+          const file = input.files[0];
+          const base64 = await toBase64(file);
+          attachedFiles.push({
+            name: file.name,
+            content: base64
+          });
+        }
+      }
+
+      // 2. حلقة إرسال سريعة ومتسلسلة
+      for (let i = 0; i < emailList.length; i++) {
+        const email = emailList[i];
+        statusDiv.innerHTML += `<div class="log-info">[${i + 1}/${emailList.length}] جاري إرسال إلى ${email}...</div>`;
+        statusDiv.scrollTop = statusDiv.scrollHeight;
+
+        try {
+          const res = await fetch('/api/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: email,
+              subject: subject,
+              htmlContent: message,
+              attachment: attachedFiles
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            statusDiv.innerHTML += `<div class="log-success">✅ تم إلى: ${email}</div>`;
+          } else {
+            statusDiv.innerHTML += `<div class="log-error">❌ فشل ${email}: ${data.error || 'خطأ'}</div>`;
+          }
+        } catch (err) {
+          statusDiv.innerHTML += `<div class="log-error">❌ خطأ اتصال: ${email}</div>`;
+        }
+        statusDiv.scrollTop = statusDiv.scrollHeight;
+      }
+
+      statusDiv.innerHTML += `<div class="log-success">✨ اكتملت جميع عمليات الإرسال بسرعة!</div>`;
+      statusDiv.scrollTop = statusDiv.scrollHeight;
+    }
 
       // قراءة وتحويل الملفات المرفقة (إن وجدت) إلى Base64
       const attachedFiles = [];
