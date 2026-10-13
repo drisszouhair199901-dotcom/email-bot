@@ -7,8 +7,8 @@ export default async function handler(req, res) {
 
   const BREVO_API_KEY = process.env.BREVO_API_KEY; 
 
-  const SENDER_NAME = "Idriss Zouhair"; 
-  const SENDER_EMAIL = "zouhairidriss06@gmail.com"; 
+ const SENDER_NAME = "Driss Zouhair"; 
+  const SENDER_EMAIL = "drisszouhair199901@gmail.com";
 
   try {
     const payload = {
