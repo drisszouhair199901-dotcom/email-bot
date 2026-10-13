@@ -94,10 +94,11 @@
       background: rgba(15, 23, 42, 0.4);
       border: 2px dashed var(--border-color);
       border-radius: 10px;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.3s;
+      margin-bottom: 10px;
     }
 
     .file-input-wrapper:hover {
@@ -114,10 +115,11 @@
       cursor: pointer;
     }
 
-    .file-list {
-      margin-top: 10px;
+    .file-info {
+      margin-top: 5px;
       font-size: 13px;
       color: #818cf8;
+      font-weight: 600;
     }
 
     .btn-send {
@@ -166,7 +168,7 @@
 
     <div class="form-group">
       <label>عنوان الرسالة (Subject)</label>
-      <input type="text" id="subject" placeholder="مثال: طلب التقديم / التقرير الأسبوعي">
+      <input type="text" id="subject" placeholder="مثال: Bewerbung um einen Ausbildungsplatz als Pflegefachmann">
     </div>
 
     <div class="form-group">
@@ -179,13 +181,30 @@
       <textarea id="message" rows="6" placeholder="اكتب محتوى الرسالة هنا..."></textarea>
     </div>
 
+    <!-- قسم المرفقات الثلاثة -->
     <div class="form-group">
-      <label>المرفقات (يمكنك اختيار عدة ملفات: PDF، صور، إلخ)</label>
-      <div class="file-input-wrapper" onclick="document.getElementById('attachments').click()">
-        <span class="file-label">📁 اضغط هنا لاختيار الملفات المراد إرفاقها</span>
-        <input type="file" id="attachments" multiple onchange="showFileNames()">
+      <label>المرفقات (يمكنك اختيار حتى 3 ملفات PDF منفصلة):</label>
+      
+      <!-- الملف الأول -->
+      <div class="file-input-wrapper" onclick="document.getElementById('attachment1').click()">
+        <span class="file-label">📄 1. اختر ملف الـ CV و Anschreiben</span>
+        <input type="file" id="attachment1" accept="application/pdf" onchange="updateFileInfo(1)">
+        <div id="file-info-1" class="file-info"></div>
       </div>
-      <div id="file-list" class="file-list"></div>
+
+      <!-- الملف الثاني -->
+      <div class="file-input-wrapper" onclick="document.getElementById('attachment2').click()">
+        <span class="file-label">📜 2. اختر ملف الشهادات والترجمة (Zeugnisse)</span>
+        <input type="file" id="attachment2" accept="application/pdf" onchange="updateFileInfo(2)">
+        <div id="file-info-2" class="file-info"></div>
+      </div>
+
+      <!-- الملف الثالث -->
+      <div class="file-input-wrapper" onclick="document.getElementById('attachment3').click()">
+        <span class="file-label">📸 3. اختر ملف صور الـ Stage (Praktikum Fotos)</span>
+        <input type="file" id="attachment3" accept="application/pdf" onchange="updateFileInfo(3)">
+        <div id="file-info-3" class="file-info"></div>
+      </div>
     </div>
 
     <button class="btn-send" onclick="sendEmails()">بدء الإرسال الفوري</button>
@@ -196,29 +215,25 @@
   </div>
 
   <script>
-    let attachedFiles = [];
-
-    function showFileNames() {
-      const input = document.getElementById('attachments');
-      const list = document.getElementById('file-list');
-      list.innerHTML = '';
-      attachedFiles = [];
-
-      for (let file of input.files) {
-        list.innerHTML += `<div>📄 ${file.name} (${(file.size/1024).toFixed(1)} KB)</div>`;
-        
-        // تحويل الملف لـ Base64
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const base64Content = e.target.result.split(',')[1];
-          attachedFiles.push({
-            name: file.name,
-            content: base64Content
-          });
-        };
-        reader.readAsDataURL(file);
+    // دالة لعرض اسم وحجم الملف المختار تحت الحقل المخصص له
+    function updateFileInfo(index) {
+      const input = document.getElementById(`attachment${index}`);
+      const infoDiv = document.getElementById(`file-info-${index}`);
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        infoDiv.innerHTML = `✅ تم اختيار: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      } else {
+        infoDiv.innerHTML = '';
       }
     }
+
+    // دالة تحويل أي ملف إلى Base64
+    const toBase64 = file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = error => reject(error);
+    });
 
     async function sendEmails() {
       const subject = document.getElementById('subject').value.trim();
@@ -233,11 +248,25 @@
         return;
       }
 
+      // قراءة وتحويل الملفات المرفقة (إن وجدت) إلى Base64
+      const attachedFiles = [];
+      for (let i = 1; i <= 3; i++) {
+        const input = document.getElementById(`attachment${i}`);
+        if (input.files && input.files[0]) {
+          const file = input.files[0];
+          const base64 = await toBase64(file);
+          attachedFiles.push({
+            name: file.name,
+            content: base64
+          });
+        }
+      }
+
       statusDiv.innerHTML = `<div class="log-info">⏳ بدء معالجة الحملة لأجل ${emailList.length} مستلم...</div>`;
 
       for (let i = 0; i < emailList.length; i++) {
         const email = emailList[i];
-        statusDiv.innerHTML += `<div class="log-info">[${i + 1}/${emailList.length}] جاري إرسال إلى ${email}...</div>`;
+        statusDiv.innerHTML += `<div class="log-info">[${i + 1}/${emailList.length}] جاري الإرسال إلى ${email}...</div>`;
         statusDiv.scrollTop = statusDiv.scrollHeight;
 
         try {
@@ -248,7 +277,7 @@
               to: email,
               subject: subject,
               htmlContent: message,
-              attachment: attachedFiles
+              attachment: attachedFiles // إرسال جميع الملفات المحددة في الحقول الثلاثة
             })
           });
 
@@ -256,7 +285,7 @@
           if (res.ok) {
             statusDiv.innerHTML += `<div class="log-success">✅ تم الإرسال بنجاح إلى: ${email}</div>`;
           } else {
-            statusDiv.innerHTML += `<div class="log-error">❌ فشل الإرسال إلى ${email}: ${data.error}</div>`;
+            statusDiv.innerHTML += `<div class="log-error">❌ فشل الإرسال إلى ${email}: ${data.error || 'حدث خطأ'}</div>`;
           }
         } catch (err) {
           statusDiv.innerHTML += `<div class="log-error">❌ خطأ بالاتصال عند إرسال: ${email}</div>`;
