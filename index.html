@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>روبوت إرسال الإيميلات</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    input, textarea, button { width: 100%; margin-bottom: 15px; padding: 10px; box-sizing: border-box; }
+    button { background-color: #28a745; color: white; border: none; cursor: pointer; font-size: 16px; }
+    #status { white-space: pre-line; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>روبوت الإرسال التلقائي (Brevo + Vercel)</h2>
+  
+  <label>عنوان الرسالة (Subject):</label>
+  <input type="text" id="subject" placeholder="أدخل موضوع الإيميل">
+
+  <label>قائمة الإيميلات (إيميل في كل سطر):</label>
+  <textarea id="emails" rows="6" placeholder="example1@gmail.com&#10;example2@gmail.com"></textarea>
+
+  <label>محتوى الرسالة (HTML أو نص عادي):</label>
+  <textarea id="message" rows="8" placeholder="اكتب رسالتك هنا..."></textarea>
+
+  <button onclick="sendEmails()">بدء الإرسال الآن</button>
+
+  <div id="status"></div>
+
+  <script>
+    async function sendEmails() {
+      const subject = document.getElementById('subject').value;
+      const emailsText = document.getElementById('emails').value;
+      const message = document.getElementById('message').value;
+      const statusDiv = document.getElementById('status');
+
+      const emailList = emailsText.split('\n').map(e => e.trim()).filter(e => e.length > 0);
+
+      if (emailList.length === 0 || !subject || !message) {
+        alert('الرجاء ملء جميع الحقول!');
+        return;
+      }
+
+      statusDiv.innerText = "جاري البدء في الإرسال...\n";
+
+      for (let i = 0; i < emailList.length; i++) {
+        const email = emailList[i];
+        statusDiv.innerText += `[${i + 1}/${emailList.length}] جاري الإرسال إلى: ${email} ... `;
+
+        try {
+          const res = await fetch('/api/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ to: email, subject: subject, htmlContent: message })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            statusDiv.innerText += "✅ تم بنجاح\n";
+          } else {
+            statusDiv.innerText += `❌ فشل (${data.error})\n`;
+          }
+        } catch (err) {
+          statusDiv.innerText += "❌ خطأ في الاتصال\n";
+        }
+      }
+
+      statusDiv.innerText += "\n✨ اكتملت العملية!";
+    }
+  </script>
+</body>
+</html>
