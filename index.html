@@ -2,69 +2,270 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>روبوت إرسال الإيميلات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إرسال الحملات البريدية الاحترافي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    input, textarea, button { width: 100%; margin-bottom: 15px; padding: 10px; box-sizing: border-box; }
-    button { background-color: #28a745; color: white; border: none; cursor: pointer; font-size: 16px; }
-    #status { white-space: pre-line; font-weight: bold; }
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+    
+    body {
+      background: var(--bg-gradient);
+      color: var(--text);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+      color: #fff;
+      background: linear-gradient(to right, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #e2e8f0;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 15px;
+      color: #fff;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      background: rgba(15, 23, 42, 0.4);
+      border: 2px dashed var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+
+    .file-input-wrapper:hover {
+      border-color: var(--primary);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-label {
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .file-list {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #818cf8;
+    }
+
+    .btn-send {
+      width: 100%;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+    }
+
+    #status-container {
+      margin-top: 25px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .log-success { color: #4ade80; }
+    .log-error { color: #f87171; }
+    .log-info { color: #38bdf8; }
   </style>
 </head>
 <body>
-  <h2>روبوت الإرسال التلقائي (Brevo + Vercel)</h2>
-  
-  <label>عنوان الرسالة (Subject):</label>
-  <input type="text" id="subject" placeholder="أدخل موضوع الإيميل">
 
-  <label>قائمة الإيميلات (إيميل في كل سطر):</label>
-  <textarea id="emails" rows="6" placeholder="example1@gmail.com&#10;example2@gmail.com"></textarea>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 لوحة إرسال البريد الإلكتروني</h1>
+      <p>إرسال الحملات البريدية مع المرفقات بسهولة وسرعة</p>
+    </div>
 
-  <label>محتوى الرسالة (HTML أو نص عادي):</label>
-  <textarea id="message" rows="8" placeholder="اكتب رسالتك هنا..."></textarea>
+    <div class="form-group">
+      <label>عنوان الرسالة (Subject)</label>
+      <input type="text" id="subject" placeholder="مثال: طلب التقديم / التقرير الأسبوعي">
+    </div>
 
-  <button onclick="sendEmails()">بدء الإرسال الآن</button>
+    <div class="form-group">
+      <label>قائمة البريد الإلكتروني (عنوان في كل سطر)</label>
+      <textarea id="emails" rows="4" placeholder="client1@gmail.com&#10;client2@yahoo.com"></textarea>
+    </div>
 
-  <div id="status"></div>
+    <div class="form-group">
+      <label>نص الرسالة (تطابق نص أو HTML)</label>
+      <textarea id="message" rows="6" placeholder="اكتب محتوى الرسالة هنا..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>المرفقات (يمكنك اختيار عدة ملفات: PDF، صور، إلخ)</label>
+      <div class="file-input-wrapper" onclick="document.getElementById('attachments').click()">
+        <span class="file-label">📁 اضغط هنا لاختيار الملفات المراد إرفاقها</span>
+        <input type="file" id="attachments" multiple onchange="showFileNames()">
+      </div>
+      <div id="file-list" class="file-list"></div>
+    </div>
+
+    <button class="btn-send" onclick="sendEmails()">بدء الإرسال الفوري</button>
+
+    <div id="status-container">
+      <div class="log-info">الجاهزية: بانتظار إدخال البيانات للبدء...</div>
+    </div>
+  </div>
 
   <script>
+    let attachedFiles = [];
+
+    function showFileNames() {
+      const input = document.getElementById('attachments');
+      const list = document.getElementById('file-list');
+      list.innerHTML = '';
+      attachedFiles = [];
+
+      for (let file of input.files) {
+        list.innerHTML += `<div>📄 ${file.name} (${(file.size/1024).toFixed(1)} KB)</div>`;
+        
+        // تحويل الملف لـ Base64
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64Content = e.target.result.split(',')[1];
+          attachedFiles.push({
+            name: file.name,
+            content: base64Content
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
     async function sendEmails() {
-      const subject = document.getElementById('subject').value;
-      const emailsText = document.getElementById('emails').value;
-      const message = document.getElementById('message').value;
-      const statusDiv = document.getElementById('status');
+      const subject = document.getElementById('subject').value.trim();
+      const emailsText = document.getElementById('emails').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const statusDiv = document.getElementById('status-container');
 
       const emailList = emailsText.split('\n').map(e => e.trim()).filter(e => e.length > 0);
 
-      if (emailList.length === 0 || !subject || !message) {
-        alert('الرجاء ملء جميع الحقول!');
+      if (!subject || !message || emailList.length === 0) {
+        alert('يرجى ملء جميع الحقول المطلوبة!');
         return;
       }
 
-      statusDiv.innerText = "جاري البدء في الإرسال...\n";
+      statusDiv.innerHTML = `<div class="log-info">⏳ بدء معالجة الحملة لأجل ${emailList.length} مستلم...</div>`;
 
       for (let i = 0; i < emailList.length; i++) {
         const email = emailList[i];
-        statusDiv.innerText += `[${i + 1}/${emailList.length}] جاري الإرسال إلى: ${email} ... `;
+        statusDiv.innerHTML += `<div class="log-info">[${i + 1}/${emailList.length}] جاري إرسال إلى ${email}...</div>`;
+        statusDiv.scrollTop = statusDiv.scrollHeight;
 
         try {
           const res = await fetch('/api/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: email, subject: subject, htmlContent: message })
+            body: JSON.stringify({
+              to: email,
+              subject: subject,
+              htmlContent: message,
+              attachment: attachedFiles
+            })
           });
 
           const data = await res.json();
           if (res.ok) {
-            statusDiv.innerText += "✅ تم بنجاح\n";
+            statusDiv.innerHTML += `<div class="log-success">✅ تم الإرسال بنجاح إلى: ${email}</div>`;
           } else {
-            statusDiv.innerText += `❌ فشل (${data.error})\n`;
+            statusDiv.innerHTML += `<div class="log-error">❌ فشل الإرسال إلى ${email}: ${data.error}</div>`;
           }
         } catch (err) {
-          statusDiv.innerText += "❌ خطأ في الاتصال\n";
+          statusDiv.innerHTML += `<div class="log-error">❌ خطأ بالاتصال عند إرسال: ${email}</div>`;
         }
+        statusDiv.scrollTop = statusDiv.scrollHeight;
       }
 
-      statusDiv.innerText += "\n✨ اكتملت العملية!";
+      statusDiv.innerHTML += `<div class="log-success">✨ اكتملت جميع عمليات الإرسال!</div>`;
+      statusDiv.scrollTop = statusDiv.scrollHeight;
     }
   </script>
 </body>
