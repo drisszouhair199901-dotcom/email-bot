@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { to, subject, htmlContent } = req.body;
+  const { to, subject, htmlContent, attachment } = req.body;
 
   const BREVO_API_KEY = process.env.BREVO_API_KEY; 
 
@@ -11,6 +11,19 @@ export default async function handler(req, res) {
   const SENDER_EMAIL = "zouhairidriss06@gmail.com"; 
 
   try {
+    const payload = {
+      sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+      to: [{ email: to }],
+      replyTo: { email: SENDER_EMAIL },
+      subject: subject,
+      htmlContent: htmlContent
+    };
+
+    // إرفاق الملفات في حال وجودها
+    if (attachment && attachment.length > 0) {
+      payload.attachment = attachment;
+    }
+
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
@@ -18,13 +31,7 @@ export default async function handler(req, res) {
         'api-key': BREVO_API_KEY,
         'content-type': 'application/json'
       },
-      body: JSON.stringify({
-        sender: { name: SENDER_NAME, email: SENDER_EMAIL },
-        to: [{ email: to }],
-        replyTo: { email: SENDER_EMAIL },
-        subject: subject,
-        htmlContent: htmlContent
-      })
+      body: JSON.stringify(payload)
     });
 
     if (response.ok) {
