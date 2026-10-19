@@ -51,6 +51,24 @@
     #particles { position: absolute; inset: 0; width: 100%; height: 100%; }
     @media (prefers-reduced-motion: reduce) { .aurora { animation: none; } }
 
+    /* ===== جملة الصلاة على النبي ===== */
+    #salawat {
+      position: fixed; z-index: 5; pointer-events: none; opacity: 0;
+      white-space: nowrap; font-weight: 700;
+      font-size: clamp(18px, 3.2vw, 28px);
+      background: linear-gradient(to right, #818cf8, #c084fc, #38bdf8);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px rgba(129, 140, 248, 0.6));
+    }
+    #salawat.run { animation: salawatFloat 9s ease-in-out forwards; }
+    @keyframes salawatFloat {
+      0%   { opacity: 0;   transform: translateY(16px); }
+      20%  { opacity: 0.9; }
+      80%  { opacity: 0.9; }
+      100% { opacity: 0;   transform: translateY(-16px); }
+    }
+
     .container {
       width: 100%; max-width: 800px; margin-top: 20px;
       background: var(--card-bg); backdrop-filter: blur(16px);
@@ -142,6 +160,9 @@
     <div class="aurora a3"></div>
     <canvas id="particles"></canvas>
   </div>
+
+  <!-- ===== جملة الصلاة على النبي ===== -->
+  <div id="salawat" aria-hidden="true"></div>
 
   <!-- ===== شاشة الدخول / إنشاء الحساب ===== -->
   <div id="auth-view" class="container auth-box hidden">
@@ -518,6 +539,34 @@
 
       resize();
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) draw();
+    })();
+
+    // ---------- جملة الصلاة على النبي ----------
+    (function () {
+      var el = $('salawat');
+      var texts = ['صَلُّوا عَلَى النَّبِيِّ ﷺ', 'اللّهُمَّ صَلِّ وَسَلِّمْ عَلَى سَيِّدِنَا مُحَمَّد ﷺ'];
+      var spots = ['top', 'right', 'bottom', 'left'];
+      var n = 0;
+
+      function cycle() {
+        var s = spots[n % 4];
+        var r = Math.random();
+        el.style.top = el.style.bottom = el.style.left = el.style.right = 'auto';
+
+        if (s === 'top')    { el.style.top = '4vh';     el.style.left  = (8 + r * 40) + 'vw'; }
+        if (s === 'bottom') { el.style.bottom = '5vh';  el.style.left  = (8 + r * 40) + 'vw'; }
+        if (s === 'right')  { el.style.right = '4vw';   el.style.top   = (20 + r * 55) + 'vh'; }
+        if (s === 'left')   { el.style.left = '4vw';    el.style.top   = (20 + r * 55) + 'vh'; }
+
+        el.textContent = texts[n % texts.length];
+        n++;
+
+        el.classList.remove('run');
+        void el.offsetWidth; // باش تعاود الحركة من الأول
+        el.classList.add('run');
+      }
+
+      setTimeout(function () { cycle(); setInterval(cycle, 13000); }, 2500);
     })();
   </script>
 </body>
