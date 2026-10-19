@@ -1,9 +1,19 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>نظام إرسال الحملات البريدية</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563EB">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="E-Mail-bot">
+
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -78,6 +88,27 @@
     }
     .log-success { color: #4ade80; } .log-error { color: #f87171; } .log-info { color: #38bdf8; }
     .hidden { display: none !important; }
+
+    /* زر تحميل التطبيق (PWA) */
+    #installBtn {
+      display: none; position: fixed; bottom: 20px; left: 20px; z-index: 1000;
+      padding: 12px 18px; border: 0; border-radius: 999px;
+      background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: #fff;
+      font-weight: 700; font-size: 14px; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(37,99,235,.5);
+    }
+    #iosHelp {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 9999;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    #iosHelp .box {
+      background: #fff; color: #111; border-radius: 16px; padding: 20px; max-width: 340px;
+      text-align: right; direction: rtl; line-height: 1.8;
+    }
+    #iosHelp ol { padding-right: 18px; margin: 10px 0; }
+    #iosHelp button {
+      width: 100%; padding: 10px; border: 0; border-radius: 10px; background: #2563EB; color: #fff; font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -129,9 +160,9 @@
         <div class="hint">كتلقاه فـ Brevo ← SMTP &amp; API ← API Keys. غادي يتخزن مشفر، وما غتحتاجوش مرة أخرى.</div>
       </div>
       <div class="form-group">
-        <label>إيميل المرسل</label>
+        <label>إيميل المرسل (اختياري)</label>
         <input type="email" id="reg-sender" autocomplete="off">
-        <div class="hint">خاصو يكون مفعّل (Verified) فـ Brevo ← Senders &amp; IP. إلا خليتيه خاوي غيتستعمل نفس الإيميل ديال الحساب.</div>
+        <div class="hint">هادا هو الإيميل اللي كتصيفط منو، ماشي إيميلات المستلمين. خاصو يكون مفعّل (Verified) فـ Brevo ← Senders &amp; IP. إلا خليتيه خاوي غيتستعمل نفس الإيميل ديال الحساب.</div>
       </div>
       <button class="btn" id="btn-register" onclick="doRegister()">إنشاء الحساب</button>
     </div>
@@ -183,6 +214,21 @@
 
     <div id="status-container">
       <div class="log-info">الجاهزية: بانتظار إدخال البيانات للبدء...</div>
+    </div>
+  </div>
+
+  <!-- ===== زر تحميل التطبيق + نافذة آيفون ===== -->
+  <button id="installBtn">📲 تحميل التطبيق</button>
+
+  <div id="iosHelp">
+    <div class="box">
+      <b>تثبيت التطبيق على آيفون</b>
+      <ol>
+        <li>كليكي على زر المشاركة <b>⬆️ Share</b> (تحت فـ Safari)</li>
+        <li>اختار <b>Add to Home Screen / إضافة إلى الشاشة الرئيسية</b></li>
+        <li>كليكي <b>Add</b></li>
+      </ol>
+      <button onclick="document.getElementById('iosHelp').style.display='none'">فهمت</button>
     </div>
   </div>
 
@@ -346,6 +392,33 @@
       const r = await api('me');
       if (r.ok) showApp(r.data.user);
       else showAuth();
+    })();
+
+    // ---------- تثبيت التطبيق (PWA) ----------
+    (function () {
+      var btn = $('installBtn');
+      var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      var installed = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      var deferred = null;
+
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
+      if (installed) return; // التطبيق مثبت، الزر يبقى مخبي
+
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault(); deferred = e; btn.style.display = 'block';
+      });
+      window.addEventListener('appinstalled', function () { btn.style.display = 'none'; });
+
+      if (ios) btn.style.display = 'block';
+
+      btn.addEventListener('click', function () {
+        if (deferred) {
+          deferred.prompt();
+          deferred.userChoice.then(function () { deferred = null; btn.style.display = 'none'; });
+        } else if (ios) {
+          $('iosHelp').style.display = 'flex';
+        }
+      });
     })();
   </script>
 </body>
