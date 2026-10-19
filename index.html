@@ -3,167 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>نظام إرسال الحملات البريدية الاحترافي</title>
+  <title>نظام إرسال الحملات البريدية</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #4f46e5;
-      --primary-hover: #4338ca;
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
       --card-bg: rgba(255, 255, 255, 0.05);
       --border-color: rgba(255, 255, 255, 0.1);
       --text: #f8fafc;
       --text-muted: #94a3b8;
     }
-
     * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-    
     body {
-      background: var(--bg-gradient);
-      color: var(--text);
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: var(--bg-gradient); color: var(--text); min-height: 100vh;
+      margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start;
     }
-
     .container {
-      width: 100%;
-      max-width: 800px;
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      width: 100%; max-width: 800px; margin-top: 20px;
+      background: var(--card-bg); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color); border-radius: 20px; padding: 30px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
     }
-
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
+    .auth-box { max-width: 460px; }
+    .header { text-align: center; margin-bottom: 25px; }
     .header h1 {
-      margin: 0;
-      font-size: 26px;
-      color: #fff;
+      margin: 0; font-size: 26px;
       background: linear-gradient(to right, #818cf8, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-
-    .header p {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-top: 5px;
+    .header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #e2e8f0; }
+    .hint { color: var(--text-muted); font-size: 12px; margin-top: 6px; line-height: 1.6; }
+    input[type="text"], input[type="email"], input[type="password"], textarea {
+      width: 100%; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 12px 15px; color: #fff; font-size: 14px; transition: all .3s ease;
     }
-
-    .form-group {
-      margin-bottom: 20px;
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.3); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+    .tab {
+      flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--border-color);
+      background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; font-size: 14px;
     }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      font-size: 14px;
-      color: #e2e8f0;
-    }
-
-    input[type="text"], textarea {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 12px 15px;
-      color: #fff;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-
-    input[type="text"]:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
-    }
-
+    .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     .file-input-wrapper {
-      position: relative;
-      background: rgba(15, 23, 42, 0.4);
-      border: 2px dashed var(--border-color);
-      border-radius: 10px;
-      padding: 15px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.3s;
-      margin-bottom: 10px;
+      background: rgba(15,23,42,0.4); border: 2px dashed var(--border-color); border-radius: 10px;
+      padding: 15px; text-align: center; cursor: pointer; transition: border-color .3s; margin-bottom: 10px;
     }
-
-    .file-input-wrapper:hover {
-      border-color: var(--primary);
+    .file-input-wrapper:hover { border-color: var(--primary); }
+    input[type="file"] { display: none; }
+    .file-label { color: var(--text-muted); font-size: 13px; }
+    .file-info { margin-top: 5px; font-size: 13px; color: #818cf8; font-weight: 600; }
+    .btn {
+      width: 100%; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: #fff; border: none;
+      border-radius: 10px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(79,70,229,.4);
     }
-
-    input[type="file"] {
-      display: none;
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; }
+    .who { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .who b { color: #fff; }
+    .btn-out {
+      background: transparent; border: 1px solid var(--border-color); color: var(--text-muted);
+      border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; white-space: nowrap;
     }
-
-    .file-label {
-      color: var(--text-muted);
-      font-size: 13px;
-      cursor: pointer;
+    .error-box {
+      background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.4); color: #fca5a5;
+      padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 15px; display: none;
     }
-
-    .file-info {
-      margin-top: 5px;
-      font-size: 13px;
-      color: #818cf8;
-      font-weight: 600;
-    }
-
-    .btn-send {
-      width: 100%;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn-send:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
-    }
-
     #status-container {
-      margin-top: 25px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 10px;
-      padding: 15px;
-      max-height: 200px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 13px;
-      line-height: 1.6;
+      margin-top: 25px; background: rgba(0,0,0,.3); border-radius: 10px; padding: 15px;
+      max-height: 220px; overflow-y: auto; font-family: monospace; font-size: 13px; line-height: 1.6;
     }
-
-    .log-success { color: #4ade80; }
-    .log-error { color: #f87171; }
-    .log-info { color: #38bdf8; }
+    .log-success { color: #4ade80; } .log-error { color: #f87171; } .log-info { color: #38bdf8; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <!-- ===== شاشة الدخول / إنشاء الحساب ===== -->
+  <div id="auth-view" class="container auth-box hidden">
     <div class="header">
-      <h1>🚀 لوحة إرسال البريد الإلكتروني</h1>
-      <p>إرسال الحملات البريدية مع المرفقات بسهولة وسرعة</p>
+      <h1>🚀 لوحة إرسال البريد</h1>
+      <p>كل واحد كيخدم بحساب Brevo ديالو</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" id="tab-login" onclick="showTab('login')">تسجيل الدخول</button>
+      <button class="tab" id="tab-register" onclick="showTab('register')">إنشاء حساب</button>
+    </div>
+
+    <div id="auth-error" class="error-box"></div>
+
+    <!-- تسجيل الدخول: إيميل + كلمة سر فقط -->
+    <div id="form-login">
+      <div class="form-group">
+        <label>الإيميل</label>
+        <input type="email" id="login-email" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>كلمة السر</label>
+        <input type="password" id="login-password" autocomplete="current-password">
+      </div>
+      <button class="btn" id="btn-login" onclick="doLogin()">دخول</button>
+    </div>
+
+    <!-- إنشاء الحساب: مرة وحدة فقط -->
+    <div id="form-register" class="hidden">
+      <div class="form-group">
+        <label>اسم المستخدم (هو الاسم اللي غيبان للمستلم)</label>
+        <input type="text" id="reg-username" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>الإيميل</label>
+        <input type="email" id="reg-email" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>كلمة السر (8 حروف على الأقل)</label>
+        <input type="password" id="reg-password" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>API key ديال Brevo</label>
+        <input type="password" id="reg-brevo" autocomplete="off">
+        <div class="hint">كتلقاه فـ Brevo ← SMTP &amp; API ← API Keys. غادي يتخزن مشفر، وما غتحتاجوش مرة أخرى.</div>
+      </div>
+      <div class="form-group">
+        <label>إيميل المرسل</label>
+        <input type="email" id="reg-sender" autocomplete="off">
+        <div class="hint">خاصو يكون مفعّل (Verified) فـ Brevo ← Senders &amp; IP. إلا خليتيه خاوي غيتستعمل نفس الإيميل ديال الحساب.</div>
+      </div>
+      <button class="btn" id="btn-register" onclick="doRegister()">إنشاء الحساب</button>
+    </div>
+  </div>
+
+  <!-- ===== شاشة الإرسال ===== -->
+  <div id="app-view" class="container hidden">
+    <div class="topbar">
+      <div class="who">مرحبا <b id="who-name"></b><br>الإرسال من: <b id="who-sender"></b></div>
+      <button class="btn-out" onclick="doLogout()">خروج</button>
     </div>
 
     <div class="form-group">
@@ -173,41 +151,35 @@
 
     <div class="form-group">
       <label>قائمة البريد الإلكتروني (عنوان في كل سطر)</label>
-      <textarea id="emails" rows="4" placeholder="client1@gmail.com&#10;client2@yahoo.com"></textarea>
+      <textarea id="emails" rows="4" placeholder="hr1@example.de&#10;hr2@example.de"></textarea>
     </div>
 
     <div class="form-group">
-      <label>نص الرسالة (تطابق نص أو HTML)</label>
+      <label>نص الرسالة (نص عادي أو HTML)</label>
       <textarea id="message" rows="6" placeholder="اكتب محتوى الرسالة هنا..."></textarea>
     </div>
 
-    <!-- قسم المرفقات الثلاثة -->
     <div class="form-group">
-      <label>المرفقات (يمكنك اختيار حتى 3 ملفات PDF منفصلة):</label>
-      
-      <!-- الملف الأول -->
+      <label>المرفقات (حتى 3 ملفات PDF، المجموع أقل من 3 MB):</label>
+
       <div class="file-input-wrapper" onclick="document.getElementById('attachment1').click()">
-        <span class="file-label">📄 1. اختر ملف الـ CV و Anschreiben</span>
+        <span class="file-label">📄 1. CV و Anschreiben</span>
         <input type="file" id="attachment1" accept="application/pdf" onchange="updateFileInfo(1)">
         <div id="file-info-1" class="file-info"></div>
       </div>
-
-      <!-- الملف الثاني -->
       <div class="file-input-wrapper" onclick="document.getElementById('attachment2').click()">
-        <span class="file-label">📜 2. اختر ملف الشهادات والترجمة (Zeugnisse)</span>
+        <span class="file-label">📜 2. الشهادات والترجمة (Zeugnisse)</span>
         <input type="file" id="attachment2" accept="application/pdf" onchange="updateFileInfo(2)">
         <div id="file-info-2" class="file-info"></div>
       </div>
-
-      <!-- الملف الثالث -->
       <div class="file-input-wrapper" onclick="document.getElementById('attachment3').click()">
-        <span class="file-label">📸 3. اختر ملف صور الـ Stage (Praktikum Fotos)</span>
+        <span class="file-label">📸 3. صور الـ Stage (Praktikum Fotos)</span>
         <input type="file" id="attachment3" accept="application/pdf" onchange="updateFileInfo(3)">
         <div id="file-info-3" class="file-info"></div>
       </div>
     </div>
 
-    <button class="btn-send" onclick="sendEmails()">بدء الإرسال الفوري</button>
+    <button class="btn" id="btn-send" onclick="sendEmails()">بدء الإرسال</button>
 
     <div id="status-container">
       <div class="log-info">الجاهزية: بانتظار إدخال البيانات للبدء...</div>
@@ -215,137 +187,166 @@
   </div>
 
   <script>
-    // دالة لعرض اسم وحجم الملف المختار تحت الحقل المخصص له
-    function updateFileInfo(index) {
-      const input = document.getElementById(`attachment${index}`);
-      const infoDiv = document.getElementById(`file-info-${index}`);
-      if (input.files && input.files[0]) {
-        const file = input.files[0];
-        infoDiv.innerHTML = `✅ تم اختيار: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-      } else {
-        infoDiv.innerHTML = '';
-      }
+    const $ = (id) => document.getElementById(id);
+    const MAX_TOTAL_BYTES = 3 * 1024 * 1024; // حد Vercel ~4.5MB لكل طلب (Base64 كيزيد 33%)
+
+    async function api(path, body) {
+      const res = await fetch('/api/' + path, {
+        method: body ? 'POST' : 'GET',
+        headers: body ? { 'Content-Type': 'application/json' } : {},
+        body: body ? JSON.stringify(body) : undefined,
+        credentials: 'same-origin'
+      });
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+      return { ok: res.ok, status: res.status, data };
     }
 
-    // دالة تحويل أي ملف إلى Base64
-    const toBase64 = file => new Promise((resolve, reject) => {
+    // ---------- التبديل بين الشاشات ----------
+    function showAuth() { $('app-view').classList.add('hidden'); $('auth-view').classList.remove('hidden'); }
+    function showApp(user) {
+      $('auth-view').classList.add('hidden');
+      $('app-view').classList.remove('hidden');
+      $('who-name').textContent = user.username;
+      $('who-sender').textContent = user.senderEmail;
+    }
+    function showTab(which) {
+      const login = which === 'login';
+      $('form-login').classList.toggle('hidden', !login);
+      $('form-register').classList.toggle('hidden', login);
+      $('tab-login').classList.toggle('active', login);
+      $('tab-register').classList.toggle('active', !login);
+      showError('');
+    }
+    function showError(msg) {
+      const box = $('auth-error');
+      box.textContent = msg;
+      box.style.display = msg ? 'block' : 'none';
+    }
+
+    // ---------- الحساب ----------
+    async function doLogin() {
+      showError('');
+      $('btn-login').disabled = true;
+      const r = await api('login', {
+        email: $('login-email').value,
+        password: $('login-password').value
+      });
+      $('btn-login').disabled = false;
+      if (r.ok) { $('login-password').value = ''; showApp(r.data.user); }
+      else showError(r.data.error || 'وقع خطأ');
+    }
+
+    async function doRegister() {
+      showError('');
+      $('btn-register').disabled = true;
+      const r = await api('register', {
+        username: $('reg-username').value,
+        email: $('reg-email').value,
+        password: $('reg-password').value,
+        brevoKey: $('reg-brevo').value,
+        senderEmail: $('reg-sender').value || $('reg-email').value
+      });
+      $('btn-register').disabled = false;
+      if (r.ok) {
+        $('reg-password').value = '';
+        $('reg-brevo').value = '';
+        showApp(r.data.user);
+      } else showError(r.data.error || 'وقع خطأ');
+    }
+
+    async function doLogout() {
+      await api('logout', {});
+      showAuth();
+      showTab('login');
+    }
+
+    // ---------- الملفات ----------
+    function updateFileInfo(index) {
+      const input = $('attachment' + index);
+      const info = $('file-info-' + index);
+      if (input.files && input.files[0]) {
+        const f = input.files[0];
+        info.textContent = '✅ ' + f.name + ' (' + (f.size / 1024).toFixed(1) + ' KB)';
+      } else info.textContent = '';
+    }
+
+    const toBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = error => reject(error);
+      reader.onerror = reject;
     });
 
-  async function sendEmails() {
-      const subject = document.getElementById('subject').value.trim();
-      const emailsText = document.getElementById('emails').value.trim();
-      const message = document.getElementById('message').value.trim();
-      const statusDiv = document.getElementById('status-container');
+    function log(cls, text) {
+      const d = document.createElement('div');
+      d.className = cls;
+      d.textContent = text;
+      const box = $('status-container');
+      box.appendChild(d);
+      box.scrollTop = box.scrollHeight;
+    }
 
-      const emailList = emailsText.split('\n').map(e => e.trim()).filter(e => e.length > 0);
+    // ---------- الإرسال ----------
+    async function sendEmails() {
+      const subject = $('subject').value.trim();
+      const message = $('message').value.trim();
+      const emailList = [...new Set(
+        $('emails').value.split('\n').map((e) => e.trim().toLowerCase()).filter(Boolean)
+      )];
 
       if (!subject || !message || emailList.length === 0) {
         alert('يرجى ملء جميع الحقول المطلوبة!');
         return;
       }
 
-      statusDiv.innerHTML = `<div class="log-info">⏳ جاري تجهيز الملفات والبدء السريع لأجل ${emailList.length} مستلم...</div>`;
-
-      // 1. تحويل الملفات لـ Base64 مرة واحدة فقط قبل البدء (لتوفير الوقت والسرعة)
-      const attachedFiles = [];
+      const files = [];
+      let total = 0;
       for (let i = 1; i <= 3; i++) {
-        const input = document.getElementById(`attachment${i}`);
-        if (input.files && input.files[0]) {
-          const file = input.files[0];
-          const base64 = await toBase64(file);
-          attachedFiles.push({
-            name: file.name,
-            content: base64
-          });
-        }
+        const input = $('attachment' + i);
+        if (input.files && input.files[0]) { files.push(input.files[0]); total += input.files[0].size; }
+      }
+      if (total > MAX_TOTAL_BYTES) {
+        alert('مجموع المرفقات كبير (' + (total / 1048576).toFixed(1) + ' MB). خاصو يكون أقل من 3 MB. صغّر الـ PDF.');
+        return;
       }
 
-      // 2. حلقة إرسال سريعة ومتسلسلة
+      const btn = $('btn-send');
+      btn.disabled = true;
+      $('status-container').innerHTML = '';
+      log('log-info', '⏳ جاري تجهيز الملفات والإرسال لـ ' + emailList.length + ' مستلم...');
+
+      const attachedFiles = [];
+      for (const file of files) attachedFiles.push({ name: file.name, content: await toBase64(file) });
+
+      let okCount = 0, failCount = 0;
       for (let i = 0; i < emailList.length; i++) {
         const email = emailList[i];
-        statusDiv.innerHTML += `<div class="log-info">[${i + 1}/${emailList.length}] جاري إرسال إلى ${email}...</div>`;
-        statusDiv.scrollTop = statusDiv.scrollHeight;
-
+        log('log-info', '[' + (i + 1) + '/' + emailList.length + '] جاري الإرسال إلى ' + email + '...');
         try {
-          const res = await fetch('/api/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              to: email,
-              subject: subject,
-              htmlContent: message,
-              attachment: attachedFiles
-            })
-          });
-
-          const data = await res.json();
-          if (res.ok) {
-            statusDiv.innerHTML += `<div class="log-success">✅ تم إلى: ${email}</div>`;
-          } else {
-            statusDiv.innerHTML += `<div class="log-error">❌ فشل ${email}: ${data.error || 'خطأ'}</div>`;
+          const r = await api('send', { to: email, subject, htmlContent: message, attachment: attachedFiles });
+          if (r.ok) { okCount++; log('log-success', '✅ تم إلى: ' + email); }
+          else {
+            failCount++;
+            log('log-error', '❌ فشل ' + email + ': ' + (r.data.error || 'خطأ'));
+            if (r.status === 401) { log('log-error', 'انتهت الجلسة، دخل من جديد.'); showAuth(); break; }
           }
         } catch (err) {
-          statusDiv.innerHTML += `<div class="log-error">❌ خطأ اتصال: ${email}</div>`;
+          failCount++;
+          log('log-error', '❌ خطأ اتصال: ' + email);
         }
-        statusDiv.scrollTop = statusDiv.scrollHeight;
       }
 
-      statusDiv.innerHTML += `<div class="log-success">✨ اكتملت جميع عمليات الإرسال بسرعة!</div>`;
-      statusDiv.scrollTop = statusDiv.scrollHeight;
+      log('log-success', '✨ سالات العملية: ' + okCount + ' نجحو، ' + failCount + ' فشلو.');
+      btn.disabled = false;
     }
 
-      // قراءة وتحويل الملفات المرفقة (إن وجدت) إلى Base64
-      const attachedFiles = [];
-      for (let i = 1; i <= 3; i++) {
-        const input = document.getElementById(`attachment${i}`);
-        if (input.files && input.files[0]) {
-          const file = input.files[0];
-          const base64 = await toBase64(file);
-          attachedFiles.push({
-            name: file.name,
-            content: base64
-          });
-        }
-      }
-
-      statusDiv.innerHTML = `<div class="log-info">⏳ بدء معالجة الحملة لأجل ${emailList.length} مستلم...</div>`;
-
-      for (let i = 0; i < emailList.length; i++) {
-        const email = emailList[i];
-        statusDiv.innerHTML += `<div class="log-info">[${i + 1}/${emailList.length}] جاري الإرسال إلى ${email}...</div>`;
-        statusDiv.scrollTop = statusDiv.scrollHeight;
-
-        try {
-          const res = await fetch('/api/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              to: email,
-              subject: subject,
-              htmlContent: message,
-              attachment: attachedFiles // إرسال جميع الملفات المحددة في الحقول الثلاثة
-            })
-          });
-
-          const data = await res.json();
-          if (res.ok) {
-            statusDiv.innerHTML += `<div class="log-success">✅ تم الإرسال بنجاح إلى: ${email}</div>`;
-          } else {
-            statusDiv.innerHTML += `<div class="log-error">❌ فشل الإرسال إلى ${email}: ${data.error || 'حدث خطأ'}</div>`;
-          }
-        } catch (err) {
-          statusDiv.innerHTML += `<div class="log-error">❌ خطأ بالاتصال عند إرسال: ${email}</div>`;
-        }
-        statusDiv.scrollTop = statusDiv.scrollHeight;
-      }
-
-      statusDiv.innerHTML += `<div class="log-success">✨ اكتملت جميع عمليات الإرسال!</div>`;
-      statusDiv.scrollTop = statusDiv.scrollHeight;
-    }
+    // ---------- البداية: واش مسجل الدخول؟ ----------
+    (async function init() {
+      const r = await api('me');
+      if (r.ok) showApp(r.data.user);
+      else showAuth();
+    })();
   </script>
 </body>
 </html>
